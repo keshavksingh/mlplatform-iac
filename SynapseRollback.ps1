@@ -19,7 +19,7 @@ az account set --subscription $subscription
 #Detach Synapse Spark Pool from Azure ML Workspace
 az ml compute detach --name $amlAttachedSynapseName `
                      --subscription $subscription `
-                     -resource-group $resourcegroup `
+                     --resource-group $resourcegroup `
                      --workspace-name $amlworkspace
 
 #Delete Spark Pool

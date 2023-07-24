@@ -20,7 +20,8 @@ az account set --subscription $subscription
 az ml compute detach --name $amlAttachedSynapseName `
                      --subscription $subscription `
                      --resource-group $resourcegroup `
-                     --workspace-name $amlworkspace
+                     --workspace-name $amlworkspace `
+                     --yes
 
 # Delete Access Policy For Synapse On the Key Vault
 # Retrive Provisioned Azure Synapse WS's Managed Identity For Revoking the Key Vault Access Policies
@@ -45,5 +46,4 @@ Write-Output "Synapse WS Delete state: $($synapseWSDeleteStatus.provisioningStat
 #Delete Synapse Associated Storage Account
 $synapseStorageDeleteStatus = az storage account delete -n $synapsewsStorageName -g $resourcegroup | ConvertFrom-Json
 Write-Output "Synapse ADLS Gen2 Delete state: $($synapseStorageDeleteStatus.provisioningState)"
-
 

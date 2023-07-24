@@ -22,17 +22,6 @@ az ml compute detach --name $amlAttachedSynapseName `
                      --resource-group $resourcegroup `
                      --workspace-name $amlworkspace
 
-#Delete Spark Pool
-$synapseSparkPoolDeleteStatus = az synapse spark pool delete --name $sparkPoolName --workspace-name $synapsewsname --resource-group $resourcegroup
-Write-Output "Synapse Spark Pool $sparkPoolName Deleted state: $($synapseSparkPoolDeleteStatus.provisioningState)"
-
-$synapseWSDeleteStatus = az synapse workspace delete --name $synapsewsname --resource-group $resourcegroup --yes | ConvertFrom-Json
-Write-Output "Synapse WS Delete state: $($synapseWSDeleteStatus.provisioningState)"
-
-#Delete Synapse Associated Storage Account
-$synapseStorageDeleteStatus = az storage account delete -n $synapsewsStorageName -g $resourcegroup | ConvertFrom-Json
-Write-Output "Synapse ADLS Gen2 Delete state: $($synapseStorageDeleteStatus.provisioningState)"
-
 # Delete Access Policy For Synapse On the Key Vault
 # Retrive Provisioned Azure Synapse WS's Managed Identity For Revoking the Key Vault Access Policies
 $securePassword = ConvertTo-SecureString $clientSecret -AsPlainText -Force
@@ -45,3 +34,16 @@ $synapseMI = $managedIdentity.PrincipalId
 
 # Delete the access policy for the specified Managed Identity from the Key Vault
 Remove-AzKeyVaultAccessPolicy -VaultName $keyVaultName -ObjectId $synapseMI
+
+#Delete Spark Pool
+$synapseSparkPoolDeleteStatus = az synapse spark pool delete --name $sparkPoolName --workspace-name $synapsewsname --resource-group $resourcegroup
+Write-Output "Synapse Spark Pool $sparkPoolName Deleted state: $($synapseSparkPoolDeleteStatus.provisioningState)"
+
+$synapseWSDeleteStatus = az synapse workspace delete --name $synapsewsname --resource-group $resourcegroup --yes | ConvertFrom-Json
+Write-Output "Synapse WS Delete state: $($synapseWSDeleteStatus.provisioningState)"
+
+#Delete Synapse Associated Storage Account
+$synapseStorageDeleteStatus = az storage account delete -n $synapsewsStorageName -g $resourcegroup | ConvertFrom-Json
+Write-Output "Synapse ADLS Gen2 Delete state: $($synapseStorageDeleteStatus.provisioningState)"
+
+

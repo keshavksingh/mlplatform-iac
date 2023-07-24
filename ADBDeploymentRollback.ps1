@@ -12,7 +12,7 @@ az account set --subscription "<>"
 az config set extension.use_dynamic_install=yes_without_prompt
 Write-Output "Provisioning Azure Databricks workspace..."
 #Delete The ADB Workspace
-az databricks workspace delete --name $adbwsname --resource-group $resourcegroup --yes
+$deleteDatabricks = az databricks workspace delete --name $adbwsname --resource-group $resourcegroup --yes | ConvertFrom-Json
 
 $keyVaultName = "<>"
 $secretName = $adbwsname+"-token"

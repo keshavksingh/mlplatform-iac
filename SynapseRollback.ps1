@@ -37,13 +37,12 @@ $synapseMI = $managedIdentity.PrincipalId
 Remove-AzKeyVaultAccessPolicy -VaultName $keyVaultName -ObjectId $synapseMI
 
 #Delete Spark Pool
-$synapseSparkPoolDeleteStatus = az synapse spark pool delete --name $sparkPoolName --workspace-name $synapsewsname --resource-group $resourcegroup
+$synapseSparkPoolDeleteStatus = az synapse spark pool delete --name $sparkPoolName --workspace-name $synapsewsname --resource-group $resourcegroup --yes | ConvertFrom-Json
 Write-Output "Synapse Spark Pool $sparkPoolName Deleted state: $($synapseSparkPoolDeleteStatus.provisioningState)"
 
 $synapseWSDeleteStatus = az synapse workspace delete --name $synapsewsname --resource-group $resourcegroup --yes | ConvertFrom-Json
 Write-Output "Synapse WS Delete state: $($synapseWSDeleteStatus.provisioningState)"
 
 #Delete Synapse Associated Storage Account
-$synapseStorageDeleteStatus = az storage account delete -n $synapsewsStorageName -g $resourcegroup | ConvertFrom-Json
+$synapseStorageDeleteStatus = az storage account delete -n $synapsewsStorageName -g $resourcegroup --yes | ConvertFrom-Json
 Write-Output "Synapse ADLS Gen2 Delete state: $($synapseStorageDeleteStatus.provisioningState)"
-

@@ -55,14 +55,8 @@ if ($provisioningState -eq "Succeeded") {
     Write-Output "Secret '$secretName' has been added to Key Vault '$keyVaultName'."
 
     # Get Key Vault ResourceId and Add the ResourceId to the Azure Databricks secret scope with the name "secret"
-    #Install-Module -Name Az -AllowClobber -Force
-    $securePassword = ConvertTo-SecureString $clientSecret -AsPlainText -Force
-    $psCredential = New-Object System.Management.Automation.PSCredential($clientId, $securePassword)
-    Connect-AzAccount -ServicePrincipal -TenantId $tenantId -Credential $psCredential
-
     $keyVaultName = "<>"
-    $keyVault = Get-AzKeyVault -VaultName $keyVaultName
-    $keyVaultResourceId = $keyVault.ResourceId
+    $keyVaultResourceId=$(az keyvault show --name $keyVaultName --query id --output tsv)
 
     $secretScopeName = "secret"
     $kv_dns_name="https://$keyVaultName.vault.azure.net/"

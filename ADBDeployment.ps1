@@ -3,6 +3,12 @@ $clientSecret = "<>"
 $tenantId = "<>"
 $resourcegroup = "<>"
 $adbwsname = "<>"
+$subscription = "<>"
+$amlworkspace = "<>"
+$adbWorkspaceName = "<>"
+$amlAttachedAdbName = "adbcompute"
+$subscription = "<>"
+$location = "West US 2"
 
 # Log in to Azure using the service principal
 az login --service-principal --username $clientId --password $clientSecret --tenant $tenantId
@@ -117,39 +123,22 @@ if ($provisioningState -eq "Succeeded") {
 #secretscope = os.environ['secretscope']
 #print(dbutils.secrets.get(scope = secretscope, key = "adbmlopseus02-token"))
 
-<#
 # Attach the ADB Instance to the AML WorkSpace
 #https://learn.microsoft.com/en-us/rest/api/azureml/2023-06-01-preview/compute/create-or-update?tabs=HTTP#databricksproperties
 #https://learn.microsoft.com/en-us/azure/templates/microsoft.machinelearningservices/workspaces/computes?pivots=deployment-language-bicep
 
-$clientId = "<>"
-$clientSecret = "<>"
-$tenantId = "<>"
-
 $tokenEndpoint = "https://login.microsoftonline.com/$tenantId/oauth2/token"
 $body = @{"grant_type" = "client_credentials";"client_id" = $clientId;"client_secret" = $clientSecret;"resource" = "https://management.azure.com/"}
-
 # Convert the token request parameters to URL-encoded form data
 $formData = $body.GetEnumerator() | ForEach-Object { "{0}={1}" -f $_.Key, [System.Web.HttpUtility]::UrlEncode($_.Value) }
 $formData = $formData -join "&"
-
 $headers = @{ "Content-Type" = "application/x-www-form-urlencoded" }
 $response = Invoke-RestMethod -Uri $tokenEndpoint -Method Post -Headers $headers -Body $formData
 $accessToken = $response.access_token
-
 # Define the compute attach URL
-$subscriptionId = "<>"
-$resourceGroupName = "<>"
-$workspaceName = "<>"
-$computeName = "<>"
-
-$attachUrl = "https://management.azure.com/subscriptions/$subscriptionId/resourceGroups/$resourceGroupName/providers/Microsoft.MachineLearningServices/workspaces/$workspaceName/computes/"+$computeName+"?api-version=2023-06-01-preview"
-
+$attachUrl = "https://management.azure.com/subscriptions/$subscription/resourceGroups/$resourcegroup/providers/Microsoft.MachineLearningServices/workspaces/$amlworkspace/computes/"+$amlAttachedAdbName+"?api-version=2023-06-01-preview"
 # Define the compute attach payload
-$databricksAccessToken="<>"
-$payload = @{"computeType" = "Databricks";"isAttachedCompute" = "true";"properties" = @{"databricksAccessToken" = $databricksAccessToken;"workspaceUrl" = "https://adb-6098231177242094.14.azuredatabricks.net"}}
-
+$payload = @{"location"=$location;"properties" = @{"computeType" = "Databricks";"isAttachedCompute" = "true";"properties" = @{"databricksAccessToken" = $secretValue;"workspaceUrl" = "https://" + $workspaceStatus.workspaceUrl};"resourceId"="/subscriptions/$subscription/resourceGroups/$resourcegroup/providers/Microsoft.Databricks/workspaces/$adbWorkspaceName"}}
 $jsonPayload = $payload | ConvertTo-Json
 $headers = @{ "Authorization" = "Bearer $accessToken"; "Content-Type" = "application/json" }
 $response = Invoke-RestMethod -Uri $attachUrl -Method Put -Headers $headers -Body $jsonPayload
-#>

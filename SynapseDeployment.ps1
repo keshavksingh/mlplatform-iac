@@ -63,16 +63,14 @@ az synapse workspace firewall-rule create --name $ruleName `
 Write-Output "Synapse WS Provisioning state: $($workspaceStatus.provisioningState)"
 
 # Retrive Provisioned Azure Synapse WS's Managed Identity For Adding to Key Vault Access Policies
-$securePassword = ConvertTo-SecureString $clientSecret -AsPlainText -Force
-$psCredential = New-Object System.Management.Automation.PSCredential($clientId, $securePassword)
-Connect-AzAccount -ServicePrincipal -TenantId $tenantId -Credential $psCredential
-Select-AzSubscription -SubscriptionId $subscription
-$workspaceInfo = Get-AzSynapseWorkspace -ResourceGroupName $resourcegroup -Name $synapsewsname
-$managedIdentity = $workspaceInfo.Identity
-$synapseMI = $managedIdentity.PrincipalId
+$synapseMI = az synapse workspace show --name $synapsewsname --resource-group $resourcegroup | Out-String
+$synapseMI = $synapseMI | ConvertFrom-Json
 
 # Add Access Policies to AKV for Synapse
-Set-AzKeyVaultAccessPolicy -VaultName $keyVaultName -ResourceGroupName $resourcegroup -ObjectId $synapseMI -PermissionsToSecrets all -BypassObjectIdValidation
+az keyvault set-policy --name $keyVaultName `
+                       --resource-group $resourcegroup `
+                       --object-id $synapseMI.identity.principalId `
+                       --secret-permissions get list set delete backup restore recover purge
 
 # Create the Linked Service in Azure Synapse Analytics
 $linkedServiceProperties = @{"name"= "$linkedServiceName"

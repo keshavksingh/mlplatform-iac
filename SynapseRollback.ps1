@@ -25,16 +25,11 @@ az ml compute detach --name $amlAttachedSynapseName `
 
 # Delete Access Policy For Synapse On the Key Vault
 # Retrive Provisioned Azure Synapse WS's Managed Identity For Revoking the Key Vault Access Policies
-$securePassword = ConvertTo-SecureString $clientSecret -AsPlainText -Force
-$psCredential = New-Object System.Management.Automation.PSCredential($clientId, $securePassword)
-Connect-AzAccount -ServicePrincipal -TenantId $tenantId -Credential $psCredential
-Select-AzSubscription -SubscriptionId $subscription
-$workspaceInfo = Get-AzSynapseWorkspace -ResourceGroupName $resourcegroup -Name $synapsewsname
-$managedIdentity = $workspaceInfo.Identity
-$synapseMI = $managedIdentity.PrincipalId
+$synapseMI = az synapse workspace show --name $synapsewsname --resource-group $resourcegroup | Out-String
+$synapseMI = $synapseMI | ConvertFrom-Json
 
 # Delete the access policy for the specified Managed Identity from the Key Vault
-Remove-AzKeyVaultAccessPolicy -VaultName $keyVaultName -ObjectId $synapseMI
+az keyvault delete-policy --name $keyVaultName --object-id $synapseMI.identity.principalId --resource-group $resourcegroup
 
 #Delete Spark Pool
 $synapseSparkPoolDeleteStatus = az synapse spark pool delete --name $sparkPoolName --workspace-name $synapsewsname --resource-group $resourcegroup --yes | ConvertFrom-Json

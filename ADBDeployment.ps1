@@ -62,7 +62,7 @@ if ($provisioningState -eq "Succeeded") {
 
     # Get Key Vault ResourceId and Add the ResourceId to the Azure Databricks secret scope with the name "secret"
     $keyVaultName = "<>"
-    $keyVaultResourceId=$(az keyvault show --name $keyVaultName --query id --output tsv)
+    $keyVaultResourceId=$(az keyvault show --name $keyVaultName --resource-group $resourcegroup --query id --output tsv)
 
     $secretScopeName = "secret"
     $kv_dns_name="https://$keyVaultName.vault.azure.net/"

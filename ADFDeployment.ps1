@@ -110,6 +110,14 @@ $masterpipeline = @"
         }
     ],
     "parameters": {
+        "WindowStart": {
+          "type": "string",
+          "defaultValue": ""
+        },
+        "WindowEnd": {
+          "type": "string",
+          "defaultValue": ""
+        },
         "AMLPipelineId": {
             "type": "string",
             "defaultValue": ""
@@ -130,45 +138,39 @@ Remove-Item $jsonMasterPipelineFile
 #https://learn.microsoft.com/en-us/azure/data-factory/concepts-pipeline-execution-triggers
 $TriggerProperties = @"
 {
-    "properties": {
-      "type": "ScheduleTrigger/TumblingWindow",
-      "typeProperties": {
-        "recurrence": {
-          "frequency": <<Minute, Hour, Day, Week, Year>>,
-          "interval": <<int>>, // How often to fire
-          "startTime": <<datetime>>,
-          "endTime": <<datetime>>,
-          "timeZone": "UTC",
-          "schedule": { // Optional (advanced scheduling specifics)
-            "hours": [<<0-24>>],
-            "weekDays": [<<Monday-Sunday>>],
-            "minutes": [<<0-60>>],
-            "monthDays": [<<1-31>>],
-            "monthlyOccurrences": [
-              {
-                "day": <<Monday-Sunday>>,
-                "occurrence": <<1-5>>
-              }
-            ]
-          }
-        }
-      },
-    "pipelines": [
-      {
-        "pipelineReference": {
-          "type": "PipelineReference",
-          "referenceName": "<Name of your pipeline>"
-        },
+  "type": "ScheduleTrigger",
+  "pipelines": [
+     {
         "parameters": {
-          "<parameter 1 Name>": {
+          "WindowStart": {
             "type": "Expression",
-            "value": "<parameter 1 Value>"
+            "value": "@trigger().outputs.windowStartTime"
           },
-          "<parameter 2 Name>": "<parameter 2 Value>"
+          "WindowEnd": {
+            "type": "Expression",
+            "value": "@trigger().outputs.windowEndTime"
+          },
+          "AMLPipelineId": {
+            "type": "string",
+            "value": "AMLPipelineId"
         }
-      }
-    ]}
+        },
+        "pipelineReference": {
+           "type": "PipelineReference",
+           "referenceName": "$ADFPipelineName"
+        }
+     }
+  ],
+  "typeProperties": {
+     "recurrence": {
+        "endTime": "2023-10-01T00:55:13.8441801Z",
+        "frequency": "Day",
+        "interval": 1,
+        "startTime": "2023-08-01T00:39:13.8441801Z",
+        "timeZone": "UTC"
+     }
   }
+}
 "@
 
 $jsonADFTriggerFile = "triggerpipeline.json"

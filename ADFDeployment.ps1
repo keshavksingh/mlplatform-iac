@@ -142,18 +142,9 @@ $TriggerProperties = @"
   "pipelines": [
      {
         "parameters": {
-          "WindowStart": {
-            "type": "Expression",
-            "value": "@trigger().outputs.windowStartTime"
-          },
-          "WindowEnd": {
-            "type": "Expression",
-            "value": "@trigger().outputs.windowEndTime"
-          },
-          "AMLPipelineId": {
-            "type": "string",
-            "value": "AMLPipelineId"
-        }
+          "WindowStart": "@trigger().outputs.windowStartTime",
+          "WindowEnd": "@trigger().outputs.windowEndTime",
+          "AMLPipelineId": "AMLPipelineId"
         },
         "pipelineReference": {
            "type": "PipelineReference",

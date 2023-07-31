@@ -1,7 +1,7 @@
 $clientId = "<>"
 $clientSecret = "<>"
 $tenantId = "<>"
-$resourcegroup = '"<>"
+$resourcegroup = "<>"
 $subscription ="<>"
 $keyVaultName = "<>"
 $synapsewsStorageName = "<>"

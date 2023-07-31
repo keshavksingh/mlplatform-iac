@@ -19,7 +19,7 @@ $ruleName = "AllowAll"
 $startIp = "0.0.0.0"
 $endIp = "255.255.255.255"
 $amlworkspace = "<>"
-$amlAttachedSynapseName = "<>"#$synapsewsname+"-"+$sparkPoolName #It can include letters, digits and dashes. It must start with a letter, end with a letter or digit, and be between 2 and 16 characters in length.
+$amlAttachedSynapseName = "<>"  #$synapsewsname+"-"+$sparkPoolName #It can include letters, digits and dashes. It must start with a letter, end with a letter or digit, and be between 2 and 16 characters in length.
 $roleName = "Synapse Administrator"
 
 function getAccessToken{

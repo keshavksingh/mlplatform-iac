@@ -1,0 +1,39 @@
+FROM mcr.microsoft.com/azureml/inference-base-2004@sha256:dcbb484a97769769d4d96ac805ea1cef8227f21132f5948a574627263747f065
+
+WORKDIR /
+ENV AZUREML_CONDA_ENVIRONMENT_PATH=/azureml-envs/minimal
+ENV AZUREML_CONDA_DEFAULT_ENVIRONMENT=$AZUREML_CONDA_ENVIRONMENT_PATH
+
+# Prepend path to AzureML conda environment
+ENV PATH $AZUREML_CONDA_ENVIRONMENT_PATH/bin:$PATH
+
+ENV LD_LIBRARY_PATH $AZUREML_CONDA_ENVIRONMENT_PATH/lib:$LD_LIBRARY_PATH
+
+# Create conda environment
+USER root
+COPY conda_dependencies.yaml .
+RUN conda env create -p $AZUREML_CONDA_ENVIRONMENT_PATH -f conda_dependencies.yaml -q && \
+    rm conda_dependencies.yaml && \
+    conda run -p $AZUREML_CONDA_ENVIRONMENT_PATH pip cache purge && \
+    conda clean -a -y
+
+# install Microsoft SQL Server requirements.
+ENV ACCEPT_EULA=Y
+RUN apt-get update -y && apt-get update \
+  && apt-get install -y --no-install-recommends curl gcc g++ gnupg unixodbc-dev
+  
+# Add SQL Server ODBC Driver 18
+RUN curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add - \
+  && curl https://packages.microsoft.com/config/debian/10/prod.list > /etc/apt/sources.list.d/mssql-release.list \
+  && apt-get update \
+  && apt-get install -y --no-install-recommends --allow-unauthenticated msodbcsql18 mssql-tools \
+  && echo 'export PATH="$PATH:/opt/mssql-tools/bin"' >> ~/.bash_profile \
+  && echo 'export PATH="$PATH:/opt/mssql-tools/bin"' >> ~/.bashrc
+
+RUN apt-get update
+
+RUN apt-get -y clean
+
+USER dockeruser
+
+CMD [ "runsvdir", "/var/runit" ]
